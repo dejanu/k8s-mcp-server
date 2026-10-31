@@ -1,4 +1,4 @@
-FROM python:3.12-slim-trixie
+FROM python:3.14-slim-trixie
 
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
@@ -18,6 +18,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 COPY pyproject.toml uv.lock ./
+
+# copy HTTP server and tool declarations module
 COPY k8s_mcp_server_http.py k8s_tools.py ./
 
 RUN uv sync --frozen --no-dev
