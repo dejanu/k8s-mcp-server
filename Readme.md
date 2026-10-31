@@ -15,6 +15,7 @@ Assessment-only,  no mutations to the cluster:
 ## Start and test the MCP server
 
 * Server implementations:
+
     `k8s_mcp_server_local.py` - STDIO transport, uses the MCP SDK’s lower-level Server API. Clients SHOULD support stdio whenever possible](https://modelcontextprotocol.io/specification/2025-11-25/basic/transports#streamable-http)
     
     `k8s_mcp_server_http.py` — uses FastMCP’s higher-level API

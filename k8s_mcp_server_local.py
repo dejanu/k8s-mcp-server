@@ -9,13 +9,9 @@ import asyncio
 from typing import Any, Sequence
 
 from mcp.server import Server
-from mcp.types import Tool, TextContent
+from mcp.types import CallToolResult, ListToolsResult, Tool, TextContent
 from kubernetes import client, config
 from kubernetes.client.rest import ApiException
-
-
-# Initialize MCP server
-app = Server("kubernetes-mcp-server")
 
 
 _k8s_initialized = False
@@ -58,10 +54,9 @@ def format_resource_usage(cpu, memory):
     return f"{cpu_cores:.2f} cores, {mem_gb:.2f} GB"
 
 
-@app.list_tools()
-async def list_tools() -> list[Tool]:
+async def list_tools(_context: Any, _params: Any) -> ListToolsResult:
     """List available Kubernetes assessment tools"""
-    return [
+    return ListToolsResult(tools=[
         Tool(
             name="get_cluster_info",
             description="Get basic Kubernetes cluster information including version and API server status",
@@ -124,35 +119,48 @@ async def list_tools() -> list[Tool]:
                 "required": []
             }
         )
-    ]
+    ])
 
 
-@app.call_tool()
-async def call_tool(name: str, arguments: Any) -> Sequence[TextContent]:
+async def call_tool(_context: Any, params: Any) -> CallToolResult:
     """Handle tool calls"""
-    
+    name = params.name
+    arguments = params.arguments or {}
+    is_error = False
+
     try:
         init_kubernetes()
         
         if name == "get_cluster_info":
-            return await get_cluster_info()
+            content = await get_cluster_info()
         elif name == "check_node_health":
-            return await check_node_health()
+            content = await check_node_health()
         elif name == "check_pod_health":
             namespace = arguments.get("namespace", None)
-            return await check_pod_health(namespace)
+            content = await check_pod_health(namespace)
         elif name == "get_resource_usage":
             namespace = arguments.get("namespace", None)
-            return await get_resource_usage(namespace)
+            content = await get_resource_usage(namespace)
         elif name == "diagnose_cluster":
-            return await diagnose_cluster()
+            content = await diagnose_cluster()
         elif name == "get_namespace_summary":
-            return await get_namespace_summary()
+            content = await get_namespace_summary()
         else:
-            return [TextContent(type="text", text=f"Unknown tool: {name}")]
+            content = [TextContent(type="text", text=f"Unknown tool: {name}")]
+            is_error = True
             
     except Exception as e:
-        return [TextContent(type="text", text=f"Error: {str(e)}")]
+        content = [TextContent(type="text", text=f"Error: {str(e)}")]
+        is_error = True
+
+    return CallToolResult(content=list(content), isError=is_error)
+
+
+app = Server(
+    "kubernetes-mcp-server",
+    on_list_tools=list_tools,
+    on_call_tool=call_tool,
+)
 
 
 async def get_cluster_info() -> Sequence[TextContent]:
