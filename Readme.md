@@ -1,6 +1,8 @@
 ## MCP What's the health of my Kubernetes cluster?
 
-Assessment-only,  no mutations to the cluster:
+[What is MCP more exactly? a quick overview.](https://dejanualex.medium.com/claude-mcp-from-zero-to-hero-a5bca458d74c)
+
+k8s-mcp Assessment-only, no mutations to the cluster, available tools:
 
 ```
 ✅ get_cluster_info - Version, node count, namespace count
@@ -16,7 +18,7 @@ Assessment-only,  no mutations to the cluster:
 
 * Server implementations:
 
-    `k8s_mcp_server_local.py` - STDIO transport, uses the MCP SDK’s lower-level Server API. Clients SHOULD support stdio whenever possible](https://modelcontextprotocol.io/specification/2025-11-25/basic/transports#streamable-http)
+    `k8s_mcp_server_local.py` - STDIO transport, uses the MCP SDK’s lower-level Server API. Clients [SHOULD support stdio whenever possible](https://modelcontextprotocol.io/specification/2025-11-25/basic/transports#streamable-http)
     
     `k8s_mcp_server_http.py` — uses FastMCP’s higher-level API
 
