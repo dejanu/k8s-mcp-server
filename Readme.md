@@ -12,17 +12,12 @@ Assessment-only,  no mutations to the cluster:
 [WIP] check_networking - Istio networking overview
 ```
 
+## Start and test the MCP server
 
-* Server:
+* Server implementations:
+    `k8s_mcp_server_local.py` - STDIO transport, uses the MCP SDK’s lower-level Server API. Clients SHOULD support stdio whenever possible](https://modelcontextprotocol.io/specification/2025-11-25/basic/transports#streamable-http)
     
-    - Tools: `get_cluster_info, check_node_health, check_pod_health, get_resource_usage, diagnose_cluster, get_namespace_summary`
-    - Tool Handler
-    - MCP server setup: [Clients SHOULD support stdio whenever possible](https://modelcontextprotocol.io/specification/2025-11-25/basic/transports#streamable-http)
-    - Two transport modes:
-        - STDIO (k8s_mcp_server_local.py) — for direct Claude Code integration via .mcp.json
-        - Streamable HTTP (k8s_mcp_server_http.py) — containerized deployment on port 8000, with SSE streaming and stateful sessions
-
-## Test the MCP server
+    `k8s_mcp_server_http.py` — uses FastMCP’s higher-level API
 
 * MCP inspector
 
@@ -30,11 +25,15 @@ Assessment-only,  no mutations to the cluster:
 # setup a kubeconfig 
 export KUBECONFIG=~/.kube/config
 
-# install inspector and run server
+# install inspector
 npm install -g @modelcontextprotocol/inspector
 
-mcp-inspector python k8s_mcp_server.py
-npx @modelcontextprotocol/inspector --transport streamablehttp http://localhost:8000/messages
+# run the server STDIO mode
+mcp-inspector .venv/bin/python k8s_mcp_server_local.py
+
+# run the server HTTP mode
+uv run k8s_mcp_server_http.py 
+npx @modelcontextprotocol/inspector --transport http http://localhost:8885/messages
 ```
 
 ### Prompts 
@@ -61,7 +60,7 @@ Diagnose the cluster and explain what needs attention
 What's the overall state of the cluster and what should I fix first?
 ```
 
-* mcp.json
+* Claude Code integration via `.mcp.json`
 
 ```json
 
