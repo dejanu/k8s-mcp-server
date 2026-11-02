@@ -1,0 +1,83 @@
+# 1. ServiceAccount
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: mcp-viewer-user
+  namespace: kube-system
+---
+# 2. Long-lived token
+apiVersion: v1
+kind: Secret
+metadata:
+  name: mcp-viewer-user-token
+  namespace: kube-system
+  annotations:
+    kubernetes.io/service-account.name: mcp-viewer-user
+type: kubernetes.io/service-account-token
+---
+# 3. ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: mcp-viewer
+rules:
+  # get_cluster_info, check_node_health, check_pod_health, list_pod_images, diagnose_cluster
+  - apiGroups: [""]
+    resources: ["nodes", "namespaces", "pods", "events"]
+    verbs: ["get", "list"]
+  # get_namespace_summary, check_networking
+  - apiGroups: [""]
+    resources: ["services", "endpoints"]
+    verbs: ["get", "list"]
+  # get_namespace_summary
+  - apiGroups: ["apps"]
+    resources: ["deployments"]
+    verbs: ["get", "list"]
+  # get_resource_usage (metrics-server)
+  - apiGroups: ["metrics.k8s.io"]
+    resources: ["nodes", "pods"]
+    verbs: ["get", "list"]
+  # check_networking
+  - apiGroups: ["networking.k8s.io"]
+    resources: ["networkpolicies"]
+    verbs: ["get", "list"]
+  # check_networking — Istio CRDs (optional; tool handles missing CRDs)
+  - apiGroups: ["networking.istio.io"]
+    resources:
+      - virtualservices
+      - destinationrules
+      - gateways
+      - serviceentries
+    verbs: ["get", "list"]
+  - apiGroups: ["security.istio.io"]
+    resources: ["peerauthentications"]
+    verbs: ["get", "list"]
+  # check_argo_apps — Argo CD Applications (optional; tool handles missing CRD)
+  - apiGroups: ["argoproj.io"]
+    resources: ["applications"]
+    verbs: ["get", "list"]
+  # Argo Rollouts (optional CRD)
+  - apiGroups: ["argoproj.io"]
+    resources: ["rollouts"]
+    verbs: ["get", "list"]
+  # batch Jobs
+  - apiGroups: ["batch"]
+    resources: ["jobs"]
+    verbs: ["get", "list"]
+  # get_cluster_info — version and API discovery
+  - nonResourceURLs: ["/version", "/api", "/api/*", "/apis", "/apis/*"]
+    verbs: ["get"]
+---
+# 4. ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: mcp-viewer-binding
+subjects:
+- kind: ServiceAccount
+  name: mcp-viewer-user
+  namespace: kube-system
+roleRef:
+  kind: ClusterRole
+  name: mcp-viewer
+  apiGroup: rbac.authorization.k8s.io

@@ -1,0 +1,110 @@
+# k8s-mcp-server: Deployment + Service
+#
+# Auth: the server uses the kubeconfig from Secret k8s-mcp-kubeconfig (not the pod's SA).
+# rbac.yaml is applied on each TARGET cluster; its mcp-viewer-user token goes into that kubeconfig.
+#
+# Prerequisites (create manually):
+#   kubectl create namespace mcp   # or apply this file first (Secret mount will wait)
+#   kubectl -n mcp create secret generic k8s-mcp-kubeconfig \
+#     --from-file=config=/abs/path/to/kubeconfig
+#
+# Then:
+#   kubectl apply -f k8s-resources/k8s-mcp-server.yaml
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: mcp
+  labels:
+    app.kubernetes.io/name: k8s-mcp-server
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: k8s-mcp-server
+  namespace: mcp
+  labels:
+    app.kubernetes.io/name: k8s-mcp-server
+spec:
+  # keep at 1: MCP sessions (mcp-session-id) and the active kube context live in process memory
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: k8s-mcp-server
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: k8s-mcp-server
+      annotations:
+        # bump to force a rollout after updating the Secret
+        k8s-mcp-server/kubeconfig-rev: "1"
+    spec:
+      containers:
+        - name: k8s-mcp-server
+          image: dejanualex/k8s-mcp-server:0.1.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8885
+              protocol: TCP
+          env:
+            - name: KUBECONFIG
+              value: /kube/config
+            # optional: default context to use at startup
+            # - name: KUBECONFIG_CONTEXT
+            #   value: my-context
+          volumeMounts:
+            - name: kubeconfig
+              mountPath: /kube
+              readOnly: true
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+            seccompProfile:
+              type: RuntimeDefault
+      volumes:
+        - name: kubeconfig
+          secret:
+            # created manually (see top of file)
+            secretName: k8s-mcp-kubeconfig
+            defaultMode: 0400
+            items:
+              - key: config
+                path: config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: k8s-mcp-server
+  namespace: mcp
+  labels:
+    app.kubernetes.io/name: k8s-mcp-server
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: k8s-mcp-server
+  ports:
+    - name: http
+      port: 8885
+      targetPort: http
+      protocol: TCP
