@@ -69,6 +69,7 @@ def init_kubernetes(
         _loaded_context = target_context or _context_name(active_context)
     else:
         try:
+            # in-cluster auth via SA token
             config.load_incluster_config()
         except config.ConfigException:
             config.load_kube_config(context=target_context)

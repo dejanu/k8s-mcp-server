@@ -5,13 +5,18 @@
 k8s-mcp Assessment-only, no mutations to the cluster, available tools:
 
 ```
-✅ get_cluster_info - Version, node count, namespace count
+✅ list_kubeconfig_contexts - List kubeconfig contexts and the active one
+✅ get_kubeconfig_context - Show the active cluster context for the session
+✅ set_kubeconfig_context - Switch the active cluster context for the session
+✅ get_cluster_info - API version and nodes (like kubectl get nodes -o wide)
 ✅ check_node_health - Node conditions, capacity, allocatable resources
 ✅ check_pod_health - Pod status across namespaces, problem detection
+✅ list_pod_images - Container images for a pod or all pods in a namespace
 ✅ get_resource_usage - CPU/memory usage (requires metrics-server)
 ✅ diagnose_cluster - Comprehensive health check with issue detection
 ✅ get_namespace_summary - Resource counts per namespace
-[WIP] check_networking - Istio networking overview
+✅ check_networking - Istio control plane, sidecars, config, endpoints, NetworkPolicies
+✅ check_argo_apps - Argo CD Application sync and health status
 ```
 
 ## Start and test the MCP server
@@ -36,7 +41,13 @@ mcp-inspector .venv/bin/python k8s_mcp_server_local.py
 
 # run the server HTTP mode
 uv run k8s_mcp_server_http.py 
-npx @modelcontextprotocol/inspector --transport http http://localhost:8885/messages
+npx @modelcontextprotocol/inspector --transport http http://localhost:8885/messages 
+
+# run the server HTTP mode as container
+docker run --rm -p 8885:8885 \
+    -v absolute-path-toyour-kubeconfig:/kube/config:ro \
+    -e KUBECONFIG=/kube/config \
+    dejanualex/k8s-mcp-server:0.1.0
 ```
 
 ### Prompts 
@@ -70,7 +81,7 @@ What's the overall state of the cluster and what should I fix first?
 {
   "mcpServers": {
     "kubernetes": {
-      "command": "/Users/alexandru.dejanu/tools/k8s-mcp-server/venv/bin/python",
+      "command": "/Users/alexandru.dejanu/tools/k8s-mcp-server/.venv/bin/python",
       "args": [
         "/Users/alexandru.dejanu/tools/k8s-mcp-server/k8s_mcp_server_local.py"
       ],
@@ -88,7 +99,7 @@ What's the overall state of the cluster and what should I fix first?
   "mcpServers": {
     "kubernetes": {
       "type": "http",
-      "url": "http://localhost:8000/messages"
+      "url": "http://localhost:8885/messages"
     }
   }
 }
