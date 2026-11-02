@@ -536,4 +536,5 @@ async def main():
 
 
 if __name__ == "__main__":
+    print("Starting Kubernetes MCP Server...on STDIO")
     asyncio.run(main())

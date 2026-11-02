@@ -6,4 +6,4 @@ via load_kube_config for kube-config based auth and load_incluster_config for in
 docker buildx build --push --platform linux/amd64,linux/arm64 -f Dockerfile -t dejanualex/k8s-mcp-server:0.1.0 .
 
 - execute demo test MCP  
-:23,47!bash
+:23,47w !bash

@@ -36,8 +36,11 @@ export KUBECONFIG=~/.kube/config
 # install inspector
 npm install -g @modelcontextprotocol/inspector
 
-# run the server STDIO mode
-mcp-inspector .venv/bin/python k8s_mcp_server_local.py
+# run the server STDIO mode directly
+uv run python k8s_mcp_server_local.py
+
+# launch the STDIO server through MCP Inspector
+mcp-inspector uv run python k8s_mcp_server_local.py
 
 # run the server HTTP mode
 uv run k8s_mcp_server_http.py 
