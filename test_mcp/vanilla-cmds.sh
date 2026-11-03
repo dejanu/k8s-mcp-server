@@ -34,3 +34,11 @@ curl -s -X POST http://localhost:8885/messages \
   -H "mcp-protocol-version: 2025-11-25" \
   -H "mcp-session-id: ${mcp_session_id}" \
   -d '{"jsonrpc":"2.0","id":2,"method":"tools/list","params":{}}'
+
+# call get_cluster_info tool
+curl -s -X POST http://localhost:8885/messages \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/json, text/event-stream" \
+  -H "mcp-protocol-version: 2025-11-25" \
+  -H "mcp-session-id: ${mcp_session_id}" \
+  -d '{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"get_cluster_info","arguments":{}}}'

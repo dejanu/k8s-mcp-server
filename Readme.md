@@ -29,6 +29,8 @@ k8s-mcp **assessment-only**, no mutations to the cluster, available tools:
 
 * [MCP inspector](https://modelcontextprotocol.io/docs/2026-07-28/tools/inspector)
 
+    [MCP flow via curl](https://github.com/dejanu/k8s-mcp-server/blob/main/test_mcp/mcp_spec.md) (for testing and debugging)
+
 ```bash
 # setup a kubeconfig 
 export KUBECONFIG=~/.kube/config

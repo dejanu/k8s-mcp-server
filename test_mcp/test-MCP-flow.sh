@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# assuming the MCP server is running on localhost:8885
+# assuming the MCP server is running on localhost:8885/messages
 
 
 
