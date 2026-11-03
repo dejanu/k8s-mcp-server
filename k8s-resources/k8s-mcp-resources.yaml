@@ -1,15 +1,13 @@
 # k8s-mcp-server: Deployment + Service
 #
-# Auth: the server uses the kubeconfig from Secret k8s-mcp-kubeconfig (not the pod's SA).
-# rbac.yaml is applied on each TARGET cluster; its mcp-viewer-user token goes into that kubeconfig.
-#
-# Prerequisites (create manually):
-#   kubectl create namespace mcp   # or apply this file first (Secret mount will wait)
-#   kubectl -n mcp create secret generic k8s-mcp-kubeconfig \
-#     --from-file=config=/abs/path/to/kubeconfig
+# Auth: the server uses the mcp/mcp-viewer-user ServiceAccount to access this cluster.
+# Apply rbac.yaml to the cluster hosting this Deployment.
+# A separate target cluster still requires its own supported credentials and kubeconfig.
 #
 # Then:
 #   kubectl apply -f k8s-resources/k8s-mcp-server.yaml
+#   kubectl -n mcp port-forward svc/k8s-mcp-server 8885:8885
+
 ---
 apiVersion: v1
 kind: Namespace
@@ -35,28 +33,16 @@ spec:
     metadata:
       labels:
         app.kubernetes.io/name: k8s-mcp-server
-      annotations:
-        # bump to force a rollout after updating the Secret
-        k8s-mcp-server/kubeconfig-rev: "1"
     spec:
+      serviceAccountName: mcp-viewer-user
       containers:
         - name: k8s-mcp-server
-          image: dejanualex/k8s-mcp-server:0.1.0
+          image: dejanualex/k8s-mcp-server:0.1.1
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
               containerPort: 8885
               protocol: TCP
-          env:
-            - name: KUBECONFIG
-              value: /kube/config
-            # optional: default context to use at startup
-            # - name: KUBECONFIG_CONTEXT
-            #   value: my-context
-          volumeMounts:
-            - name: kubeconfig
-              mountPath: /kube
-              readOnly: true
           readinessProbe:
             httpGet:
               path: /health
@@ -82,15 +68,6 @@ spec:
               drop: ["ALL"]
             seccompProfile:
               type: RuntimeDefault
-      volumes:
-        - name: kubeconfig
-          secret:
-            # created manually (see top of file)
-            secretName: k8s-mcp-kubeconfig
-            defaultMode: 0400
-            items:
-              - key: config
-                path: config
 ---
 apiVersion: v1
 kind: Service

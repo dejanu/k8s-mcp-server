@@ -1,9 +1,0 @@
-
-- currently the auth logic is in logic is init_kubernetes() in k8s_tools.py 
-via load_kube_config for kube-config based auth and load_incluster_config for in cluster SA auth
-
-- build and push the MCP http server image
-docker buildx build --push --platform linux/amd64,linux/arm64 -f Dockerfile -t dejanualex/k8s-mcp-server:0.1.0 .
-
-- execute demo test MCP  
-:23,47w !bash

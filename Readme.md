@@ -55,55 +55,21 @@ docker run --rm -p 8885:8885 \
 
 ### Prompts 
 
-* Prompts
+* Prompt examples for the Kubernetes cluster health assessment:
 
 ```
 Is the cluster healthy?
 Are all nodes ready? 
 Show me any pods that are not running  
 Diagnose the cluster and explain what needs attention
-
 Are there any nodes under resource pressure?
 Show resource usage and identify which nodes are overloaded
 Which pods are consuming the most CPU and memory?
 Is there enough capacity to schedule more workloads?
-
 Give me a summary of all namespaces
-
 Give me a full cluster assessment — nodes, pods, resource usage, and any issues
 Compare resource usage across nodes , is the workload balanced?
 
 Diagnose the cluster and explain what needs attention
 What's the overall state of the cluster and what should I fix first?
-```
-
-* Claude Code integration via `.mcp.json`
-
-```json
-
-{
-  "mcpServers": {
-    "kubernetes": {
-      "command": "/Users/alexandru.dejanu/tools/k8s-mcp-server/.venv/bin/python",
-      "args": [
-        "/Users/alexandru.dejanu/tools/k8s-mcp-server/k8s_mcp_server_local.py"
-      ],
-      "env": {
-        "KUBECONFIG": "/abs/path/to/kubeconfig"
-      }
-    }
-  }
-}
-```
-
-
-```json
-{
-  "mcpServers": {
-    "kubernetes": {
-      "type": "http",
-      "url": "http://localhost:8885/messages"
-    }
-  }
-}
 ```

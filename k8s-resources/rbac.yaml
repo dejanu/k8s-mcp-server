@@ -1,21 +1,11 @@
-# 1. ServiceAccount
+# 1. ServiceAccount used by the MCP server Deployment in namespace mcp
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: mcp-viewer-user
-  namespace: kube-system
+  namespace: mcp
 ---
-# 2. Long-lived token
-apiVersion: v1
-kind: Secret
-metadata:
-  name: mcp-viewer-user-token
-  namespace: kube-system
-  annotations:
-    kubernetes.io/service-account.name: mcp-viewer-user
-type: kubernetes.io/service-account-token
----
-# 3. ClusterRole
+# 2. ClusterRole
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
@@ -68,7 +58,7 @@ rules:
   - nonResourceURLs: ["/version", "/api", "/api/*", "/apis", "/apis/*"]
     verbs: ["get"]
 ---
-# 4. ClusterRoleBinding
+# 3. ClusterRoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
@@ -76,7 +66,7 @@ metadata:
 subjects:
 - kind: ServiceAccount
   name: mcp-viewer-user
-  namespace: kube-system
+  namespace: mcp
 roleRef:
   kind: ClusterRole
   name: mcp-viewer
