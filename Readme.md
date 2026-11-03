@@ -2,7 +2,7 @@
 
 [What is MCP more exactly? a quick overview.](https://dejanualex.medium.com/claude-mcp-from-zero-to-hero-a5bca458d74c)
 
-k8s-mcp Assessment-only, no mutations to the cluster, available tools:
+k8s-mcp **assessment-only**, no mutations to the cluster, available tools:
 
 ```
 ✅ list_kubeconfig_contexts - List kubeconfig contexts and the active one
@@ -27,7 +27,7 @@ k8s-mcp Assessment-only, no mutations to the cluster, available tools:
     
     `k8s_mcp_server_http.py` — uses FastMCP’s higher-level API
 
-* MCP inspector
+* [MCP inspector](https://modelcontextprotocol.io/docs/2026-07-28/tools/inspector)
 
 ```bash
 # setup a kubeconfig 

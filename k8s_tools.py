@@ -59,6 +59,7 @@ def init_kubernetes(
     if _k8s_initialized and target_context == _loaded_context:
         return
 
+    # EXTERNAL kubeconfig-based auth
     if use_external_kubeconfig:
         kubeconfig = _kubeconfig_file()
         _, active_context = config.list_kube_config_contexts(kubeconfig)
