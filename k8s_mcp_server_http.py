@@ -226,5 +226,5 @@ if __name__ == "__main__":
         transport="http",
         host="0.0.0.0",
         port=8885,
-        path="/mcp",
+        path="/messages",
     )

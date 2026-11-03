@@ -37,6 +37,7 @@ spec:
       serviceAccountName: mcp-viewer-user
       containers:
         - name: k8s-mcp-server
+          # :0.1.1 expose /mcp now
           image: dejanualex/k8s-mcp-server:0.1.1
           imagePullPolicy: IfNotPresent
           ports:
