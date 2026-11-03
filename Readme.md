@@ -36,7 +36,7 @@ export KUBECONFIG=~/.kube/config
 # install inspector
 npm install -g @modelcontextprotocol/inspector
 
-# run the server STDIO mode directly
+# run the server STDIO mode directly (don't forget about the client ;) 
 uv run python k8s_mcp_server_local.py
 
 # launch the STDIO server through MCP Inspector
@@ -69,7 +69,6 @@ Is there enough capacity to schedule more workloads?
 Give me a summary of all namespaces
 Give me a full cluster assessment — nodes, pods, resource usage, and any issues
 Compare resource usage across nodes , is the workload balanced?
-
 Diagnose the cluster and explain what needs attention
 What's the overall state of the cluster and what should I fix first?
 ```
